@@ -1,34 +1,19 @@
 # Ambiente Virtual
-# Nunca inclua a pasta do ambiente virtual no Git.
 venv/
 .venv/
-env/
-.env
 
-# Arquivos de Cache do Python
+# Python cache
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
 
-# Arquivos de IDEs e Editores
+# Jupyter Notebook Cache
+.ipynb_checkpoints
+
+# IDE files (Ex: VS Code)
 .vscode/
-.idea/
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
 
-# Arquivos de Sistema Operacional
-.DS_Store
-Thumbs.db
-
-# Arquivos de modelo e datasets (Opcional)
-# É uma boa prática não versionar arquivos binários grandes ou dados brutos.
-# Em vez disso, eles devem ser gerados por um script de treino ou baixados.
-# Descomente as linhas abaixo se não quiser incluir esses arquivos no repo.
-# *.pkl
-# *.csv
-
-# Arquivos de dependências locais (gerados pelo pip)
-*.egg-info/
+# Logs e Dados Gerados (Se aplicável)
+*.log
+*.tmp
