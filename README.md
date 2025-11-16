@@ -45,7 +45,7 @@ Desenvolver um webapp que permita ao usuário:
 
 ## 🔗 Links
 
-**Link do Webapp "Deployado":** [INSIRA O LINK DO STREAMLIT AQUI APÓS O DEPLOY]
+**Link do Webapp "Deployado":** [(https://aicareernavigator.streamlit.app/)]
 
 **Link do Repositório Github:** [ESTE REPOSITÓRIO]
 
