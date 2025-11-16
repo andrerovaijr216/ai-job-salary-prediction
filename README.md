@@ -1,75 +1,52 @@
-# Global Solution - FIAP: Análise Automática de Imagens com IA
+# 👨‍💻 Global Solution - FIAP | AI Career Navigator: O Futuro do Trabalho
 
-## 📝 Descrição do Projeto
+**Disciplina:** Front End & Mobile Development
+**Turma:** 2TIAPY
+**Prazo de Entrega:** 19/11/2025
 
-Este projeto, desenvolvido para a disciplina de Front End & Mobile Development da FIAP, é um sistema de interpretação automática de imagens que utiliza modelos multimodais de Inteligência Artificial. A solução é capaz de analisar uma imagem de um ambiente de trabalho e realizar duas funções principais:
+## 👥 Integrantes
+| Nome Completo | RM |
+| :--- | :--- |
+| André Rovai | RM555848 |
+| Alan de Souza | RM557088 |
+| Leonardo Zago | RM558691 |
 
-1.  **Geração de Descrição Textual:** Cria uma descrição rica e detalhada da cena, identificando objetos, ações e a atmosfera do ambiente, de forma similar à percepção humana.
-2.  **Extração de Informações Estruturadas:** Detecta e lista objetos específicos, reconhece pessoas e lê textos presentes na imagem (OCR).
+## 💡 Descrição do Projeto (O Futuro do Trabalho)
 
-O objetivo é demonstrar a aplicação prática de modelos de visão computacional e linguagem para a compreensão profunda de cenários do mundo profissional.
+Este projeto é um webapp interativo desenvolvido em Streamlit com um modelo de Machine Learning (Regressão) embarcado, aplicado ao contexto de "O Futuro do Trabalho", com foco no crescente mercado de Inteligência Artificial (AI) e Machine Learning (ML).
 
-## 👥 Integrantes do Grupo
+### 1. Motivação do Projeto
 
-| Nome               | RM       |
-| ------------------ | -------- |
-| André Rovai        | RM555848 |
-| Alan de Souza      | RM557088 |
-| Leonardo Zago      | RM558691 |
+O mercado de trabalho está em constante e rápida transformação, impulsionado pela AI. A falta de clareza sobre quais habilidades e profissões serão mais relevantes no futuro gera incerteza profissional. A motivação é fornecer uma ferramenta de **orientação de carreira baseada em dados**, permitindo que o usuário entenda a relevância de suas habilidades e visualize o potencial salarial em diferentes segmentos da AI.
 
-## 📂 Estrutura de Arquivos
+### 2. Objetivo
 
-A imagem abaixo mostra a organização dos principais arquivos do projeto:
+Desenvolver um webapp que permita ao usuário:
+1.  **Prever o Salário** (em USD) com alta precisão, baseado em suas características (experiência, habilidades, localização) usando um modelo de Machine Learning.
+2.  **Analisar a Relevância de Habilidades** (Futuro do Trabalho), mostrando o impacto de habilidades específicas (como TensorFlow, PyTorch, etc.) na demanda e no salário médio de mercado.
+3.  **Auxiliar na Transição de Carreira**, identificando os títulos de trabalho mais lucrativos para um determinado conjunto de habilidades.
 
-![Estrutura de Arquivos do Projeto](input_file_0.png)
+### 3. Resultados Esperados
 
--   `app.py`: O arquivo principal da aplicação (provavelmente construído com Streamlit ou Flask).
--   `ai_job_dataset.csv`: Dataset utilizado para o treinamento ou análise relacionada ao projeto.
--   `requirements.txt`: Lista de dependências Python necessárias para executar o projeto.
--   `*.pkl`: Arquivos de modelo serializados (pickle), contendo o modelo de Machine Learning treinado, o scaler e outras configurações.
--   `venv/`: Pasta do ambiente virtual Python (não incluída no repositório).
+1.  **Notebook (.ipynb):** Completo com as etapas de Carregamento, Limpeza, Análise Exploratória (EDA) e Modelagem (Random Forest Regressor).
+2.  **Webapp (Streamlit):** Interface intuitiva e funcional que carrega o modelo treinado para predição em tempo real.
+3.  **Deploy:** Aplicação disponível publicamente no Streamlit Community Cloud.
+4.  **Modelo de ML:** Um modelo de Regressão com bom desempenho (R² e MAE) na previsão salarial.
 
-## 🚀 Como Executar o Projeto
+---
 
-Siga os passos abaixo para configurar e rodar a aplicação localmente.
+## 🛠️ Tecnologias e Arquivos
 
-1.  **Clone o repositório:**
-    ```bash
-    git clone [URL-DO-SEU-REPOSITORIO]
-    cd [NOME-DO-SEU-REPOSITORIO]
-    ```
+*   **Linguagem:** Python
+*   **Webapp:** Streamlit
+*   **Machine Learning:** Scikit-Learn (Random Forest Regressor)
+*   **Dados:** Pandas, NumPy
+*   **Dataset:** `ai_job_dataset.csv` (Global AI Job Market & Salary Trends)
 
-2.  **Crie e ative um ambiente virtual:**
-    ```bash
-    # Windows
-    python -m venv venv
-    .\venv\Scripts\activate
+## 🔗 Links
 
-    # macOS / Linux
-    python3 -m venv venv
-    source venv/bin/activate
-    ```
+**Link do Webapp "Deployado":** [INSIRA O LINK DO STREAMLIT AQUI APÓS O DEPLOY]
 
-3.  **Instale as dependências:**
-    ```bash
-    pip install -r requirements.txt
-    ```
+**Link do Repositório Github:** [ESTE REPOSITÓRIO]
 
-4.  **Execute a aplicação:**
-    ```bash
-    # Se for um app Streamlit
-    streamlit run app.py
-
-    # Se for um app Flask
-    python app.py
-    ```
-
-5.  Abra o navegador e acesse o endereço fornecido no terminal (geralmente `http://localhost:8501` para Streamlit ou `http://localhost:5000` para Flask).
-
-## 🛠️ Tecnologias Utilizadas
-
--   **Linguagem:** Python
--   **Framework Web:** Streamlit / Flask (a ser confirmado)
--   **Machine Learning:** Scikit-learn, Pandas, NumPy
--   **Visão Computacional:** OpenCV, Ultralytics (YOLO), EasyOCR
--   **Modelos Multimodais:** OpenAI GPT-4o / Google Gemini
+**Observação:** O notebook de treinamento foi dividido nas seções 1, 2 e 3 e resultou nos seguintes arquivos essenciais para o webapp: `model_rf_salary_predictor.pkl`, `scaler.pkl`, `model_columns.pkl` e `top_skills.pkl`.
