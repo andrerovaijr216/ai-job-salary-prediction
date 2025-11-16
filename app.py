@@ -6,6 +6,7 @@ import joblib
 import numpy as np
 import zipfile
 import os
+import shutil # Adicionado para garantir a cópia de objetos, se necessário
 
 # --- 1. SETUP INICIAL: DESCOMPACTAÇÃO DE ARQUIVOS ---
 # **IMPORTANTE:** O nome do arquivo ZIP no seu GitHub deve ser 'assets.zip'
@@ -31,11 +32,20 @@ def setup_files():
     # 2. Tenta extrair do ZIP
     elif os.path.exists(ZIP_FILE_NAME):
         try:
+            # st.spinner é uma boa prática para dar feedback ao usuário
             with st.spinner(f"Modelos não encontrados. Descompactando '{ZIP_FILE_NAME}'..."):
                 with zipfile.ZipFile(ZIP_FILE_NAME, 'r') as zip_ref:
-                    # **Nota:** Garanta que os arquivos DENTRO do ZIP não estão em subpastas.
+                    # Tenta a extração padrão, que funciona se não houver subpastas
                     zip_ref.extractall('.') 
-            return True
+
+            # Confirma que a extração resultou nos arquivos esperados
+            if all(os.path.exists(f) for f in ESSENTIAL_FILES):
+                return True
+            else:
+                # Caso a extração padrão falhe por subpasta, exibe um erro
+                st.error("Falha ao encontrar arquivos após descompactação. Verifique se o ZIP não contém subpastas internas (ex: 'assets/arquivo.pkl').")
+                return False
+        
         except Exception as e:
             st.error(f"Erro ao descompactar '{ZIP_FILE_NAME}': {e}")
             return False
@@ -65,6 +75,7 @@ try:
     model_rf, scaler, model_columns, top_skills, df_raw = load_components()
     st.sidebar.success("Modelo e componentes carregados com sucesso!")
 except Exception as e:
+    # Este bloco é uma salvaguarda, pois setup_files() deve ter pego o erro
     st.error(f"Erro no carregamento após descompactação: {e}. Verifique o conteúdo do seu ZIP.")
     st.stop()
 
@@ -97,8 +108,18 @@ def predict_salary(input_data):
     if location_mapped and f'company_location_{location_mapped}' in input_df.columns:
         input_df[f'company_location_{location_mapped}'] = 1
         
-    # **NOTA:** É fundamental mapear todas as outras colunas dummy aqui (e.g., job_title, education_required)
-    # Se você usou 200 colunas dummy, todas elas devem ser tratadas para que o input_df tenha a forma correta.
+    # **IMPORTANTE:** Mapeamento de Job Title Dummies
+    # O modelo espera uma coluna com o job_title selecionado. 
+    job_title_mapped = input_data.get('job_title', '') # Adicione 'job_title' no input_data se for usar
+    if job_title_mapped and f'job_title_{job_title_mapped}' in input_df.columns:
+        input_df[f'job_title_{job_title_mapped}'] = 1
+        
+    # **IMPORTANTE:** Mapeamento de Education Dummies
+    # O modelo espera uma coluna com a education_required selecionada.
+    education_mapped = input_data.get('education_required', '') # Adicione 'education_required' no input_data se for usar
+    if education_mapped and f'education_required_{education_mapped}' in input_df.columns:
+        input_df[f'education_required_{education_mapped}'] = 1
+
 
     # 4. Preenche as colunas de Habilidades (Skills)
     for skill in input_data['selected_skills']:
@@ -109,14 +130,19 @@ def predict_salary(input_data):
     # 5. Aplica o Scaler nas colunas numéricas originais
     numerical_cols = ['experience_level_ordinal', 'years_experience', 'remote_ratio']
     # O scikit-learn espera um array 2D, mesmo que seja apenas uma linha
-    input_df[numerical_cols] = scaler.transform(input_df[numerical_cols].values.reshape(1, -1))
+    # Verifica se os dados numéricos são válidos antes de transformar
+    try:
+        input_df[numerical_cols] = scaler.transform(input_df[numerical_cols].values.reshape(1, -1))
+    except Exception as e:
+        st.error(f"Erro no pré-processamento de dados: {e}")
+        return 0
 
     # 6. Previsão
     prediction = model_rf.predict(input_df)
     return max(0, prediction[0])
 
 
-# --- 5. Configuração da Página Streamlit (Interface) ---
+# --- 6. Configuração da Página Streamlit (Interface) ---
 st.title("🌎 AI Career Navigator: Futuro do Trabalho")
 st.markdown("Uma solução para medir a relevância profissional e prever salários no mercado de Inteligência Artificial/Machine Learning.")
 
@@ -129,6 +155,21 @@ with tab1:
     st.markdown("Insira suas qualificações para prever o salário com base nas tendências do mercado de AI/ML.")
 
     col1, col2 = st.columns(2)
+    col3, col4 = st.columns(2)
+
+
+    # Adicionado Job Title e Education Required para a funcionalidade completa do modelo
+    with col3:
+        job_title = st.selectbox(
+            "Seu Cargo (ou Desejado):",
+            options=df_raw['job_title'].value_counts().head(20).index.tolist() # Top 20 para simplificar
+        )
+
+    with col4:
+        education_required = st.selectbox(
+            "Nível de Educação:",
+            options=df_raw['education_required'].unique().tolist()
+        )
 
     with col1:
         experience_level = st.selectbox(
@@ -152,18 +193,20 @@ with tab1:
             options=list(REMOTE_MAP.keys())
         )
         
-        # Lista de Locations: Otimizado para o Top 10 para evitar muitos botões
         top_locations = df_raw['company_location'].value_counts().head(10).index.tolist()
         company_location = st.selectbox(
             "Localização da Empresa (Top 10):",
             options=top_locations
         )
+        
+        # O multiselect de skills está na coluna 2 para melhor layout
 
-        selected_skills = st.multiselect(
-            "Selecione suas principais habilidades (Afeta o salário!):",
-            options=top_skills,
-            default=top_skills[:3]
-        )
+    # Habilidades (Multi-select)
+    selected_skills = st.multiselect(
+        "Selecione suas principais habilidades (Afeta o salário!):",
+        options=top_skills,
+        default=top_skills[:3]
+    )
 
     # Botão de Previsão
     if st.button("CALCULAR SALÁRIO PREVISTO"):
@@ -173,7 +216,9 @@ with tab1:
             'company_size': company_size,
             'remote_ratio': remote_ratio,
             'company_location': company_location,
-            'selected_skills': selected_skills
+            'selected_skills': selected_skills,
+            'job_title': job_title, # Adicionado
+            'education_required': education_required # Adicionado
         }
         
         predicted_salary = predict_salary(input_data)
@@ -187,9 +232,11 @@ with tab2:
     st.header("Relevância de Habilidades para o Futuro")
     st.markdown("Explore as habilidades mais lucrativas e demandadas no mercado de AI/ML.")
 
-    def get_skill_insights(skill):
-        skill_filter = df_raw['required_skills'].str.lower().str.contains(skill.lower(), na=False)
-        subset = df_raw[skill_filter]
+    @st.cache_data
+    def get_skill_insights(df, skill):
+        # Filtra o dataset raw (sem as colunas dummies)
+        skill_filter = df['required_skills'].str.lower().str.contains(skill.lower(), na=False)
+        subset = df[skill_filter]
         
         count = len(subset)
         avg_salary = subset['salary_usd'].mean() if count > 0 else 0
@@ -202,7 +249,7 @@ with tab2:
     )
 
     if skill_to_analyze:
-        count, avg_salary = get_skill_insights(skill_to_analyze)
+        count, avg_salary = get_skill_insights(df_raw, skill_to_analyze)
         
         col_count, col_avg_salary = st.columns(2)
 
@@ -220,8 +267,13 @@ with tab2:
         st.subheader("Sugestão de Carreira")
         
         if count > 0:
-            job_title_counts = df_raw[df_raw['required_skills'].str.lower().str.contains(skill_to_analyze.lower(), na=False)]['job_title'].value_counts()
+            # Uso de cache_data para a contagem de Job Titles
+            @st.cache_data
+            def get_job_title_counts(df, skill):
+                return df[df['required_skills'].str.lower().str.contains(skill.lower(), na=False)]['job_title'].value_counts()
             
+            job_title_counts = get_job_title_counts(df_raw, skill_to_analyze)
+
             st.info(f"Se você domina **{skill_to_analyze}**, o mercado de AI/ML sugere focar em:")
             st.dataframe(job_title_counts.head(5).reset_index().rename(columns={'index': 'Título do Cargo', 'job_title': 'Frequência de Ocorrência'}), 
                          hide_index=True)
